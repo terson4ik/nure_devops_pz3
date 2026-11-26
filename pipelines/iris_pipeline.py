@@ -130,7 +130,7 @@ def iris_pipeline(
         model=trained.outputs["model_out"],
     ).set_display_name("Evaluate model")
 
-    with dsl.If(evaluated.output >= min_accuracy, name="accuracy-gate"):
+    with dsl.If(evaluated.outputs["Output"] >= min_accuracy, name="accuracy-gate"):
         predict(model=trained.outputs["model_out"], samples=samples).set_display_name(
             "Predict"
         )
