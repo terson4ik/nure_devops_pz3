@@ -6,7 +6,7 @@ import sys
 import time
 from http.cookiejar import DefaultCookiePolicy
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import kfp
 import requests
@@ -24,10 +24,12 @@ TIMEOUT = int(os.getenv("RUN_TIMEOUT", "1800"))
 def dex_session_cookies(host: str, username: str, password: str):
     """Проходить логін Dex/oauth2-proxy і повертає рядок cookie (або None, якщо захисту немає)."""
     with requests.Session() as session:
-        # localhost по HTTP: дозволяємо відправляти Secure-cookie
         session.cookies.set_policy(DefaultCookiePolicy(secure_protocols=("http", "https")))
 
         resp = session.get(host, allow_redirects=True, timeout=30)
+        if resp.status_code == 403 and "/oauth2/" in resp.text:
+            resp = session.get(f"{host}/oauth2/start?rd=%2F", allow_redirects=True, timeout=30)
+
         resp.raise_for_status()
         if not resp.history:
             return None
@@ -35,10 +37,13 @@ def dex_session_cookies(host: str, username: str, password: str):
         url = urlsplit(resp.url)
         if re.search(r"/auth$", url.path):
             login_url = url._replace(path=f"{url.path}/local").geturl()
-        elif re.search(r"/auth/.*/login$", url.path):
+        elif re.search(r"/auth/.*/login$", url.path) or re.search(r"/auth/local$", url.path):
             login_url = resp.url
         else:
-            raise RuntimeError(f"Невідомий URL логіну Dex: {resp.url}")
+            match = re.search(r'<form[^>]+action=["\']([^"\']+)["\']', resp.text, re.IGNORECASE)
+            if not match:
+                raise RuntimeError(f"Невідомий URL логіну Dex: {resp.url}")
+            login_url = urljoin(resp.url, match.group(1))
 
         resp = session.post(
             login_url,
@@ -46,7 +51,7 @@ def dex_session_cookies(host: str, username: str, password: str):
             allow_redirects=True,
             timeout=30,
         )
-        if not resp.history:
+        if not session.cookies:
             raise RuntimeError("Логін у Dex не вдався (перевірте логін/пароль)")
         return "; ".join(f"{c.name}={c.value}" for c in session.cookies)
 
