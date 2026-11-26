@@ -1,0 +1,3 @@
+$ kubectl get applications -n argocd
+NAME       SYNC STATUS   HEALTH STATUS
+iris-api   Unknown       Healthy

@@ -12,7 +12,7 @@ fi
 kind get kubeconfig --name "$CLUSTER_NAME" > "$KUBECONFIG"
 echo ">>> KUBECONFIG=$KUBECONFIG"
 
-# Опційно (якщо впираєтесь у ліміти Docker Hub): CREATE_REGCRED=1 ./scripts/02-create-cluster.sh
+# Опційно
 if [[ "${CREATE_REGCRED:-0}" == "1" && -f "$HOME/.docker/config.json" ]]; then
   kubectl create secret generic regcred \
     --from-file=.dockerconfigjson="$HOME/.docker/config.json" \

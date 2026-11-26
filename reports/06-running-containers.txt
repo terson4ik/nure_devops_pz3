@@ -1,0 +1,102 @@
+$ kubectl get pods -A -o jsonpath={range .items[*]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{range .status.containerStatuses[?(@.state.running)]}{"    "}{.name}{"\t"}{.image}{"\n"}{end}{end}
+argocd/argocd-application-controller-0
+    argocd-application-controller	quay.io/argoproj/argocd:v3.6.3
+argocd/argocd-applicationset-controller-56846db5fb-kr2cp
+    argocd-applicationset-controller	quay.io/argoproj/argocd:v3.6.3
+argocd/argocd-dex-server-5fd759dd9-hh4b7
+    dex	ghcr.io/dexidp/dex:v2.46.0
+argocd/argocd-notifications-controller-84cb67fc5d-4l94k
+    argocd-notifications-controller	quay.io/argoproj/argocd:v3.6.3
+argocd/argocd-redis-86d4d669f7-kfr6h
+    redis	public.ecr.aws/docker/library/redis:8.10.1-alpine
+argocd/argocd-repo-server-966c64566-gws6l
+    argocd-repo-server	quay.io/argoproj/argocd:v3.6.3
+argocd/argocd-server-677c666df4-zzdzj
+    argocd-server	quay.io/argoproj/argocd:v3.6.3
+auth/dex-6c6c7ff947-2259s
+    dex	ghcr.io/dexidp/dex:v2.45.1
+auth/dex-6c6c7ff947-mgwg9
+    dex	ghcr.io/dexidp/dex:v2.45.1
+cert-manager/cert-manager-cainjector-5b68759df5-mttkh
+    cert-manager-cainjector	quay.io/jetstack/cert-manager-cainjector:v1.20.2
+cert-manager/cert-manager-d966bfbbf-nnxqd
+    cert-manager-controller	quay.io/jetstack/cert-manager-controller:v1.20.2
+cert-manager/cert-manager-webhook-9596c4d8-kt89b
+    cert-manager-webhook	quay.io/jetstack/cert-manager-webhook:v1.20.2
+istio-system/cluster-local-gateway-75bbf6f4c4-7vdh8
+    istio-proxy	registry.istio.io/release/proxyv2:1.30.1
+istio-system/istio-ingressgateway-bc64bc599-dqrm2
+    istio-proxy	registry.istio.io/release/proxyv2:1.30.1
+istio-system/istiod-78bccd7444-j8c5s
+    discovery	registry.istio.io/release/pilot:1.30.1
+kube-system/coredns-559f6c778d-fldkn
+    coredns	registry.k8s.io/coredns/coredns:v1.14.6
+kube-system/coredns-559f6c778d-v9dpx
+    coredns	registry.k8s.io/coredns/coredns:v1.14.6
+kube-system/etcd-kubeflow-control-plane
+    etcd	registry.k8s.io/etcd:3.7.0-0
+kube-system/istio-cni-node-r9r7g
+    install-cni	registry.istio.io/release/install-cni:1.30.1
+kube-system/kindnet-z2426
+    kindnet-cni	docker.io/kindest/kindnetd:v20260820-69b56db7
+kube-system/kube-apiserver-kubeflow-control-plane
+    kube-apiserver	registry.k8s.io/kube-apiserver-amd64:v1.37.0
+kube-system/kube-controller-manager-kubeflow-control-plane
+    kube-controller-manager	registry.k8s.io/kube-controller-manager-amd64:v1.37.0
+kube-system/kube-proxy-qx8qj
+    kube-proxy	registry.k8s.io/kube-proxy-amd64:v1.37.0
+kube-system/kube-scheduler-kubeflow-control-plane
+    kube-scheduler	registry.k8s.io/kube-scheduler-amd64:v1.37.0
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-driver-2169729125
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-driver-2636510519
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-driver-3052946524
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-driver-3745760592
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-impl-129791107
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-impl-2807560850
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-impl-2985816406
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-container-impl-3841152569
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-dag-driver-4053494155
+kubeflow-user-example-com/iris-mlops-pipeline-d4q9n-system-dag-driver-4179215052
+kubeflow/cache-server-77b5775d8d-l2xtc
+    server	ghcr.io/kubeflow/kfp-cache-server:2.16.1
+kubeflow/dashboard-7bf59c6776-f6wpz
+    dashboard	ghcr.io/kubeflow/dashboard/dashboard:v2.0.0
+kubeflow/kubeflow-pipelines-profile-controller-78dbc5499d-v8rpr
+    profile-controller	docker.io/alpine/k8s:1.32.3
+kubeflow/metacontroller-0
+    metacontroller	ghcr.io/metacontroller/metacontroller:v4.11.22
+kubeflow/metadata-envoy-deployment-6cc75b769f-mcccw
+    container	ghcr.io/kubeflow/kfp-metadata-envoy:2.16.1
+kubeflow/metadata-grpc-deployment-747c49cc65-vg24b
+    container	gcr.io/tfx-oss-public/ml_metadata_store_server:1.14.0
+kubeflow/metadata-writer-56b868579d-ncz2x
+    main	ghcr.io/kubeflow/kfp-metadata-writer:2.16.1
+kubeflow/ml-pipeline-75ffbb5749-4qppc
+    ml-pipeline-api-server	ghcr.io/kubeflow/kfp-api-server:2.16.1
+kubeflow/ml-pipeline-persistenceagent-545df7986b-mrqnk
+    ml-pipeline-persistenceagent	ghcr.io/kubeflow/kfp-persistence-agent:2.16.1
+kubeflow/ml-pipeline-scheduledworkflow-755c4c7457-nzxzv
+    ml-pipeline-scheduledworkflow	ghcr.io/kubeflow/kfp-scheduled-workflow-controller:2.16.1
+kubeflow/ml-pipeline-ui-587b57d9fc-snr4g
+    ml-pipeline-ui	ghcr.io/kubeflow/kfp-frontend:2.16.1
+kubeflow/ml-pipeline-viewer-crd-79f5469dcd-md2p2
+    ml-pipeline-viewer-crd	ghcr.io/kubeflow/kfp-viewer-crd-controller:2.16.1
+kubeflow/ml-pipeline-visualizationserver-86c7cf8679-6s9zb
+    ml-pipeline-visualizationserver	ghcr.io/kubeflow/kfp-visualization-server:2.16.1
+kubeflow/mysql-f75686969-g9v7z
+    mysql	docker.io/library/mysql:8.4
+kubeflow/poddefaults-webhook-deployment-5454664b5c-cl4bk
+    poddefaults-webhook	ghcr.io/kubeflow/dashboard/poddefaults-webhook:v2.0.0
+kubeflow/profiles-deployment-77dbf66bbc-bnwkb
+    access-management	ghcr.io/kubeflow/dashboard/access-management:v2.0.0
+    manager	ghcr.io/kubeflow/dashboard/profile-controller:v2.0.0
+kubeflow/seaweedfs-7cffd6c874-vlc8x
+    seaweedfs	docker.io/chrislusf/seaweedfs:4.00
+kubeflow/workflow-controller-7fcc797d9b-4h5mk
+    workflow-controller	quay.io/argoproj/workflow-controller:v3.7.3
+local-path-storage/local-path-provisioner-75f7fc7dc5-8pdfn
+    local-path-provisioner	docker.io/kindest/local-path-provisioner:v20260820-69b56db7
+oauth2-proxy/oauth2-proxy-57445d695b-54d9x
+    oauth2-proxy	quay.io/oauth2-proxy/oauth2-proxy:v7.15.2
+oauth2-proxy/oauth2-proxy-57445d695b-qbwp9
+    oauth2-proxy	quay.io/oauth2-proxy/oauth2-proxy:v7.15.2

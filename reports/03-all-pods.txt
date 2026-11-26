@@ -1,0 +1,57 @@
+$ kubectl get pods -A -o wide
+NAMESPACE                   NAME                                                           READY   STATUS      RESTARTS      AGE     IP            NODE                     NOMINATED NODE   READINESS GATES
+argocd                      argocd-application-controller-0                                1/1     Running     0             8m50s   10.244.0.52   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-applicationset-controller-56846db5fb-kr2cp              1/1     Running     0             8m51s   10.244.0.47   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-dex-server-5fd759dd9-hh4b7                              1/1     Running     0             8m51s   10.244.0.46   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-notifications-controller-84cb67fc5d-4l94k               1/1     Running     0             8m51s   10.244.0.48   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-redis-86d4d669f7-kfr6h                                  1/1     Running     0             8m51s   10.244.0.49   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-repo-server-966c64566-gws6l                             1/1     Running     0             8m51s   10.244.0.50   kubeflow-control-plane   <none>           <none>
+argocd                      argocd-server-677c666df4-zzdzj                                 1/1     Running     0             8m51s   10.244.0.51   kubeflow-control-plane   <none>           <none>
+auth                        dex-6c6c7ff947-2259s                                           1/1     Running     1 (24m ago)   25m     10.244.0.8    kubeflow-control-plane   <none>           <none>
+auth                        dex-6c6c7ff947-mgwg9                                           1/1     Running     0             25m     10.244.0.9    kubeflow-control-plane   <none>           <none>
+cert-manager                cert-manager-cainjector-5b68759df5-mttkh                       1/1     Running     0             25m     10.244.0.7    kubeflow-control-plane   <none>           <none>
+cert-manager                cert-manager-d966bfbbf-nnxqd                                   1/1     Running     0             25m     10.244.0.5    kubeflow-control-plane   <none>           <none>
+cert-manager                cert-manager-webhook-9596c4d8-kt89b                            1/1     Running     0             25m     10.244.0.6    kubeflow-control-plane   <none>           <none>
+istio-system                cluster-local-gateway-75bbf6f4c4-7vdh8                         1/1     Running     0             25m     10.244.0.33   kubeflow-control-plane   <none>           <none>
+istio-system                istio-ingressgateway-bc64bc599-dqrm2                           1/1     Running     0             25m     10.244.0.34   kubeflow-control-plane   <none>           <none>
+istio-system                istiod-78bccd7444-j8c5s                                        1/1     Running     0             25m     10.244.0.10   kubeflow-control-plane   <none>           <none>
+kube-system                 coredns-559f6c778d-fldkn                                       1/1     Running     0             25m     10.244.0.4    kubeflow-control-plane   <none>           <none>
+kube-system                 coredns-559f6c778d-v9dpx                                       1/1     Running     0             25m     10.244.0.3    kubeflow-control-plane   <none>           <none>
+kube-system                 etcd-kubeflow-control-plane                                    1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kube-system                 istio-cni-node-r9r7g                                           1/1     Running     0             25m     10.244.0.12   kubeflow-control-plane   <none>           <none>
+kube-system                 kindnet-z2426                                                  1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kube-system                 kube-apiserver-kubeflow-control-plane                          1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kube-system                 kube-controller-manager-kubeflow-control-plane                 1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kube-system                 kube-proxy-qx8qj                                               1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kube-system                 kube-scheduler-kubeflow-control-plane                          1/1     Running     0             25m     172.20.0.2    kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-driver-2169729125   0/2     Completed   0             10m     10.244.0.44   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-driver-2636510519   0/2     Completed   0             12m     10.244.0.39   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-driver-3052946524   0/2     Completed   0             13m     10.244.0.37   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-driver-3745760592   0/2     Completed   0             11m     10.244.0.41   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-impl-129791107      0/2     Completed   0             9m54s   10.244.0.45   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-impl-2807560850     0/2     Completed   0             13m     10.244.0.38   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-impl-2985816406     0/2     Completed   0             11m     10.244.0.42   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-container-impl-3841152569     0/2     Completed   0             12m     10.244.0.40   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-dag-driver-4053494155         0/2     Completed   0             14m     10.244.0.36   kubeflow-control-plane   <none>           <none>
+kubeflow-user-example-com   iris-mlops-pipeline-d4q9n-system-dag-driver-4179215052         0/2     Completed   0             10m     10.244.0.43   kubeflow-control-plane   <none>           <none>
+kubeflow                    cache-server-77b5775d8d-l2xtc                                  2/2     Running     0             24m     10.244.0.20   kubeflow-control-plane   <none>           <none>
+kubeflow                    dashboard-7bf59c6776-f6wpz                                     2/2     Running     0             24m     10.244.0.17   kubeflow-control-plane   <none>           <none>
+kubeflow                    kubeflow-pipelines-profile-controller-78dbc5499d-v8rpr         1/1     Running     0             25m     10.244.0.13   kubeflow-control-plane   <none>           <none>
+kubeflow                    metacontroller-0                                               1/1     Running     0             25m     10.244.0.11   kubeflow-control-plane   <none>           <none>
+kubeflow                    metadata-envoy-deployment-6cc75b769f-mcccw                     1/1     Running     0             25m     10.244.0.14   kubeflow-control-plane   <none>           <none>
+kubeflow                    metadata-grpc-deployment-747c49cc65-vg24b                      2/2     Running     0             24m     10.244.0.18   kubeflow-control-plane   <none>           <none>
+kubeflow                    metadata-writer-56b868579d-ncz2x                               2/2     Running     0             24m     10.244.0.19   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-75ffbb5749-4qppc                                   2/2     Running     2 (19m ago)   24m     10.244.0.21   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-persistenceagent-545df7986b-mrqnk                  2/2     Running     0             24m     10.244.0.22   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-scheduledworkflow-755c4c7457-nzxzv                 2/2     Running     0             24m     10.244.0.23   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-ui-587b57d9fc-snr4g                                2/2     Running     0             24m     10.244.0.24   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-viewer-crd-79f5469dcd-md2p2                        2/2     Running     0             24m     10.244.0.25   kubeflow-control-plane   <none>           <none>
+kubeflow                    ml-pipeline-visualizationserver-86c7cf8679-6s9zb               2/2     Running     0             24m     10.244.0.26   kubeflow-control-plane   <none>           <none>
+kubeflow                    mysql-f75686969-g9v7z                                          2/2     Running     0             24m     10.244.0.32   kubeflow-control-plane   <none>           <none>
+kubeflow                    poddefaults-webhook-deployment-5454664b5c-cl4bk                1/1     Running     0             25m     10.244.0.35   kubeflow-control-plane   <none>           <none>
+kubeflow                    profiles-deployment-77dbf66bbc-bnwkb                           3/3     Running     0             24m     10.244.0.28   kubeflow-control-plane   <none>           <none>
+kubeflow                    seaweedfs-7cffd6c874-vlc8x                                     2/2     Running     0             24m     10.244.0.31   kubeflow-control-plane   <none>           <none>
+kubeflow                    workflow-controller-7fcc797d9b-4h5mk                           2/2     Running     0             24m     10.244.0.30   kubeflow-control-plane   <none>           <none>
+local-path-storage          local-path-provisioner-75f7fc7dc5-8pdfn                        1/1     Running     0             25m     10.244.0.2    kubeflow-control-plane   <none>           <none>
+oauth2-proxy                oauth2-proxy-57445d695b-54d9x                                  1/1     Running     0             25m     10.244.0.16   kubeflow-control-plane   <none>           <none>
+oauth2-proxy                oauth2-proxy-57445d695b-qbwp9                                  1/1     Running     0             25m     10.244.0.15   kubeflow-control-plane   <none>           <none>

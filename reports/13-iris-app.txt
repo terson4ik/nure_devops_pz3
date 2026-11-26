@@ -1,0 +1,2 @@
+$ kubectl get all -n iris-app
+No resources found in iris-app namespace.

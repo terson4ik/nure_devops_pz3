@@ -11,7 +11,7 @@ export KF_REF="${KF_REF:-26.03.1}"
 export KF_DIR="${KF_DIR:-$PROJECT_ROOT/.build/kubeflow-manifests}"
 export KF_PROFILE_NS="${KF_PROFILE_NS:-kubeflow-user-example-com}"
 
-# Lite-режим: вимикаємо важкі компоненти, які не потрібні для pipeline (KF_LITE=0 -> повний Kubeflow)
+# Вимикаємо важкі компоненти, які не потрібні для pipeline
 export KF_LITE="${KF_LITE:-1}"
 export KF_EXCLUDE="${KF_EXCLUDE:-applications/(katib|trainer|spark|hub|notebooks-v1|kserve)|common/knative}"
 

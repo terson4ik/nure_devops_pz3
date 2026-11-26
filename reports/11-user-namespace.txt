@@ -1,0 +1,15 @@
+$ kubectl get pods,workflows -n kubeflow-user-example-com
+NAME                                                               READY   STATUS      RESTARTS   AGE
+pod/iris-mlops-pipeline-d4q9n-system-container-driver-2169729125   0/2     Completed   0          10m
+pod/iris-mlops-pipeline-d4q9n-system-container-driver-2636510519   0/2     Completed   0          12m
+pod/iris-mlops-pipeline-d4q9n-system-container-driver-3052946524   0/2     Completed   0          13m
+pod/iris-mlops-pipeline-d4q9n-system-container-driver-3745760592   0/2     Completed   0          11m
+pod/iris-mlops-pipeline-d4q9n-system-container-impl-129791107      0/2     Completed   0          9m56s
+pod/iris-mlops-pipeline-d4q9n-system-container-impl-2807560850     0/2     Completed   0          13m
+pod/iris-mlops-pipeline-d4q9n-system-container-impl-2985816406     0/2     Completed   0          11m
+pod/iris-mlops-pipeline-d4q9n-system-container-impl-3841152569     0/2     Completed   0          12m
+pod/iris-mlops-pipeline-d4q9n-system-dag-driver-4053494155         0/2     Completed   0          14m
+pod/iris-mlops-pipeline-d4q9n-system-dag-driver-4179215052         0/2     Completed   0          10m
+
+NAME                                             STATUS      AGE   MESSAGE
+workflow.argoproj.io/iris-mlops-pipeline-d4q9n   Succeeded   14m   

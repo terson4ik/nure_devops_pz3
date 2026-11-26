@@ -1,0 +1,427 @@
+# PIPELINE DEFINITION
+# Name: iris-mlops-pipeline
+# Description: Iris: load -> train -> evaluate -> predict (за умови accuracy >= порогу)
+# Inputs:
+#    max_depth: int [Default: 5.0]
+#    min_accuracy: float [Default: 0.9]
+#    n_estimators: int [Default: 100.0]
+#    samples: list [Default: [[5.1, 3.5, 1.4, 0.2], [6.7, 3.1, 4.7, 1.5], [6.3, 3.3, 6.0, 2.5]]]
+#    seed: int [Default: 42.0]
+#    test_size: float [Default: 0.2]
+components:
+  comp-condition-1:
+    dag:
+      tasks:
+        predict:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-predict
+          inputs:
+            artifacts:
+              model:
+                componentInputArtifact: pipelinechannel--train-model-model_out
+            parameters:
+              samples:
+                componentInputParameter: pipelinechannel--samples
+          taskInfo:
+            name: Predict
+    inputDefinitions:
+      artifacts:
+        pipelinechannel--train-model-model_out:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        pipelinechannel--evaluate-model-Output:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--min_accuracy:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--samples:
+          parameterType: LIST
+  comp-evaluate-model:
+    executorLabel: exec-evaluate-model
+    inputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        test_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        cls_metrics:
+          artifactType:
+            schemaTitle: system.ClassificationMetrics
+            schemaVersion: 0.0.1
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: NUMBER_DOUBLE
+  comp-load-data:
+    executorLabel: exec-load-data
+    inputDefinitions:
+      parameters:
+        seed:
+          defaultValue: 42.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        test_size:
+          defaultValue: 0.2
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+    outputDefinitions:
+      artifacts:
+        test_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        train_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-predict:
+    executorLabel: exec-predict
+    inputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        samples:
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        predictions:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-train-model:
+    executorLabel: exec-train-model
+    inputDefinitions:
+      artifacts:
+        train_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        max_depth:
+          defaultValue: 5.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        n_estimators:
+          defaultValue: 100.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        seed:
+          defaultValue: 42.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        model_out:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-evaluate-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - evaluate_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.2.3'\
+          \ 'scikit-learn==1.6.1' 'joblib==1.4.2'  &&  python3 -m pip install --quiet\
+          \ --no-warn-script-location 'kfp==2.18.2' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+          \ python_version<\"3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef evaluate_model(\n    test_data: Input[Dataset],\n    model: Input[Model],\n\
+          \    metrics: Output[Metrics],\n    cls_metrics: Output[ClassificationMetrics],\n\
+          ) -> float:\n    \"\"\"\u041E\u0446\u0456\u043D\u044E\u0454 \u043C\u043E\
+          \u0434\u0435\u043B\u044C \u043D\u0430 \u0442\u0435\u0441\u0442\u043E\u0432\
+          \u0438\u0445 \u0434\u0430\u043D\u0438\u0445, \u043B\u043E\u0433\u0443\u0454\
+          \ \u043C\u0435\u0442\u0440\u0438\u043A\u0438.\"\"\"\n    import joblib\n\
+          \    import pandas as pd\n    from sklearn.metrics import accuracy_score,\
+          \ confusion_matrix, f1_score\n\n    df = pd.read_csv(test_data.path)\n \
+          \   x, y = df.drop(columns=[\"target\"]), df[\"target\"]\n    clf = joblib.load(model.path)\n\
+          \    pred = clf.predict(x)\n\n    accuracy = float(accuracy_score(y, pred))\n\
+          \    f1 = float(f1_score(y, pred, average=\"macro\"))\n    metrics.log_metric(\"\
+          accuracy\", accuracy)\n    metrics.log_metric(\"f1_macro\", f1)\n    cls_metrics.log_confusion_matrix(\n\
+          \        [\"setosa\", \"versicolor\", \"virginica\"], confusion_matrix(y,\
+          \ pred).tolist()\n    )\n    print(f\"accuracy={accuracy:.4f} f1_macro={f1:.4f}\"\
+          )\n    return accuracy\n\n"
+        image: python:3.12-slim
+    exec-load-data:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - load_data
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.2.3'\
+          \ 'scikit-learn==1.6.1' 'joblib==1.4.2'  &&  python3 -m pip install --quiet\
+          \ --no-warn-script-location 'kfp==2.18.2' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+          \ python_version<\"3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef load_data(\n    train_data: Output[Dataset],\n    test_data:\
+          \ Output[Dataset],\n    test_size: float = 0.2,\n    seed: int = 42,\n):\n\
+          \    \"\"\"\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0443\u0454\
+          \ \u0434\u0430\u0442\u0430\u0441\u0435\u0442 Iris \u0442\u0430 \u0434\u0456\
+          \u043B\u0438\u0442\u044C \u0439\u043E\u0433\u043E \u043D\u0430 train/test.\"\
+          \"\"\n    from sklearn.datasets import load_iris\n    from sklearn.model_selection\
+          \ import train_test_split\n\n    df = load_iris(as_frame=True).frame\n \
+          \   df.columns = [c.replace(\" (cm)\", \"\").replace(\" \", \"_\") for c\
+          \ in df.columns]\n    train_df, test_df = train_test_split(\n        df,\
+          \ test_size=test_size, random_state=seed, stratify=df[\"target\"]\n    )\n\
+          \    train_df.to_csv(train_data.path, index=False)\n    test_df.to_csv(test_data.path,\
+          \ index=False)\n    train_data.metadata[\"rows\"] = len(train_df)\n    test_data.metadata[\"\
+          rows\"] = len(test_df)\n    print(f\"train={len(train_df)} test={len(test_df)}\
+          \ columns={list(df.columns)}\")\n\n"
+        image: python:3.12-slim
+    exec-predict:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - predict
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.2.3'\
+          \ 'scikit-learn==1.6.1' 'joblib==1.4.2'  &&  python3 -m pip install --quiet\
+          \ --no-warn-script-location 'kfp==2.18.2' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+          \ python_version<\"3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef predict(model: Input[Model], samples: list, predictions: Output[Dataset]):\n\
+          \    \"\"\"\u0412\u0438\u043A\u043E\u043D\u0443\u0454 \u043F\u0435\u0440\
+          \u0435\u0434\u0431\u0430\u0447\u0435\u043D\u043D\u044F \u0434\u043B\u044F\
+          \ \u0432\u0445\u0456\u0434\u043D\u0438\u0445 \u0437\u0440\u0430\u0437\u043A\
+          \u0456\u0432.\"\"\"\n    import joblib\n    import pandas as pd\n\n    features\
+          \ = [\"sepal_length\", \"sepal_width\", \"petal_length\", \"petal_width\"\
+          ]\n    names = [\"setosa\", \"versicolor\", \"virginica\"]\n    clf = joblib.load(model.path)\n\
+          \    x = pd.DataFrame(samples, columns=features)\n    result = x.copy()\n\
+          \    result[\"predicted_class\"] = [names[i] for i in clf.predict(x)]\n\
+          \    result.to_csv(predictions.path, index=False)\n    print(\"=== PREDICTIONS\
+          \ ===\")\n    print(result.to_string(index=False))\n\n"
+        image: python:3.12-slim
+    exec-train-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.2.3'\
+          \ 'scikit-learn==1.6.1' 'joblib==1.4.2'  &&  python3 -m pip install --quiet\
+          \ --no-warn-script-location 'kfp==2.18.2' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+          \ python_version<\"3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model(\n    train_data: Input[Dataset],\n    model_out:\
+          \ Output[Model],\n    n_estimators: int = 100,\n    max_depth: int = 5,\n\
+          \    seed: int = 42,\n):\n    \"\"\"\u041D\u0430\u0432\u0447\u0430\u0454\
+          \ RandomForestClassifier.\"\"\"\n    import joblib\n    import pandas as\
+          \ pd\n    from sklearn.ensemble import RandomForestClassifier\n\n    df\
+          \ = pd.read_csv(train_data.path)\n    x, y = df.drop(columns=[\"target\"\
+          ]), df[\"target\"]\n    clf = RandomForestClassifier(\n        n_estimators=n_estimators,\
+          \ max_depth=max_depth, random_state=seed\n    )\n    clf.fit(x, y)\n   \
+          \ joblib.dump(clf, model_out.path)\n    model_out.metadata[\"framework\"\
+          ] = \"scikit-learn\"\n    model_out.metadata[\"n_estimators\"] = n_estimators\n\
+          \    print(f\"\u041C\u043E\u0434\u0435\u043B\u044C \u043D\u0430\u0432\u0447\
+          \u0435\u043D\u043E: n_estimators={n_estimators}, max_depth={max_depth}\"\
+          )\n\n"
+        image: python:3.12-slim
+pipelineInfo:
+  description: "Iris: load -> train -> evaluate -> predict (\u0437\u0430 \u0443\u043C\
+    \u043E\u0432\u0438 accuracy >= \u043F\u043E\u0440\u043E\u0433\u0443)"
+  name: iris-mlops-pipeline
+root:
+  dag:
+    tasks:
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - evaluate-model
+        - train-model
+        inputs:
+          artifacts:
+            pipelinechannel--train-model-model_out:
+              taskOutputArtifact:
+                outputArtifactKey: model_out
+                producerTask: train-model
+          parameters:
+            pipelinechannel--evaluate-model-Output:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: evaluate-model
+            pipelinechannel--min_accuracy:
+              componentInputParameter: min_accuracy
+            pipelinechannel--samples:
+              componentInputParameter: samples
+        taskInfo:
+          name: accuracy-gate
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--evaluate-model-Output']
+            >= inputs.parameter_values['pipelinechannel--min_accuracy']
+      evaluate-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-model
+        dependentTasks:
+        - load-data
+        - train-model
+        inputs:
+          artifacts:
+            model:
+              taskOutputArtifact:
+                outputArtifactKey: model_out
+                producerTask: train-model
+            test_data:
+              taskOutputArtifact:
+                outputArtifactKey: test_data
+                producerTask: load-data
+        taskInfo:
+          name: Evaluate model
+      load-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-load-data
+        inputs:
+          parameters:
+            seed:
+              componentInputParameter: seed
+            test_size:
+              componentInputParameter: test_size
+        taskInfo:
+          name: Load data
+      train-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model
+        dependentTasks:
+        - load-data
+        inputs:
+          artifacts:
+            train_data:
+              taskOutputArtifact:
+                outputArtifactKey: train_data
+                producerTask: load-data
+          parameters:
+            max_depth:
+              componentInputParameter: max_depth
+            n_estimators:
+              componentInputParameter: n_estimators
+            seed:
+              componentInputParameter: seed
+        taskInfo:
+          name: Train model
+  inputDefinitions:
+    parameters:
+      max_depth:
+        defaultValue: 5.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      min_accuracy:
+        defaultValue: 0.9
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      n_estimators:
+        defaultValue: 100.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      samples:
+        defaultValue:
+        - - 5.1
+          - 3.5
+          - 1.4
+          - 0.2
+        - - 6.7
+          - 3.1
+          - 4.7
+          - 1.5
+        - - 6.3
+          - 3.3
+          - 6.0
+          - 2.5
+        isOptional: true
+        parameterType: LIST
+      seed:
+        defaultValue: 42.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      test_size:
+        defaultValue: 0.2
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.18.2
