@@ -1,0 +1,5 @@
+.venv/
+.kube/
+.build/
+__pycache__/
+*.pyc
